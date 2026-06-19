@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subdivisión LT 32 · Alta Gracia — Análisis de desarrollo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b18; --ink-soft:#4a4843; --paper:#f6f3ec; --card:#fffdf8;
+    --line:#e2ddd0; --line-soft:#ece8dd; --accent:#a8492a; --accent-2:#8a3b1e;
+    --sage:#4f6b4a; --muted:#8a857a; --warn:#9a6a16;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --serif:'Fraunces',serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px 80px;}
+
+  header{background:var(--ink);color:var(--paper);padding:38px 0 34px;
+    border-bottom:3px solid var(--accent);}
+  .head-inner{max-width:880px;margin:0 auto;padding:0 22px;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .mark{width:54px;height:54px;border:1.5px solid var(--paper);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;font-family:var(--serif);
+    font-weight:600;font-size:20px;letter-spacing:1px;flex-shrink:0;}
+  .mark span{opacity:.55;margin:0 2px;}
+  header h1{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.1;margin:0;}
+  header .sub{font-size:14px;color:#cfc8b8;margin-top:4px;}
+  .meta{margin-top:18px;display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mono);
+    font-size:12.5px;color:#bdb6a6;}
+  .meta b{color:var(--paper);font-weight:500;}
+
+  section{margin-top:54px;animation:rise .6s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:0 0 4px;
+    display:flex;align-items:baseline;gap:12px;}
+  h2 .n{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500;}
+  h2::after{content:"";flex:1;height:1px;background:var(--line);margin-left:6px;align-self:center;}
+  .lead{color:var(--ink-soft);margin:10px 0 22px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr;}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;}
+  .card h3{font-family:var(--sans);font-weight:600;font-size:15px;margin:0 0 10px;
+    letter-spacing:.2px;}
+
+  ul.clean{list-style:none;padding:0;margin:0;}
+  ul.clean li{padding:7px 0 7px 22px;position:relative;border-bottom:1px solid var(--line-soft);font-size:15px;}
+  ul.clean li:last-child{border-bottom:none;}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:14px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);}
+  ul.clean li.ok::before{background:var(--sage);}
+  ul.clean li.warn::before{background:var(--warn);}
+  ul.clean b{font-weight:600;}
+
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14.5px;}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-soft);}
+  thead th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+    border-bottom:1px solid var(--line);font-weight:600;}
+  td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap;}
+  tr.tot td{border-top:1.5px solid var(--ink);border-bottom:none;font-weight:600;padding-top:11px;}
+  tr.opt td{color:var(--ink-soft);font-style:italic;}
+  .tag{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 7px;border-radius:5px;
+    border:1px solid var(--line);color:var(--ink-soft);}
+  .tag.must{background:#f0e6df;border-color:#e0c9bb;color:var(--accent-2);}
+  .tag.neg{background:#f3eddd;border-color:#e6d9b6;color:var(--warn);}
+  .note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.55;}
+
+  .calc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .ctrls{display:grid;gap:16px;}
+  .slider label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--ink-soft);margin-bottom:5px;}
+  .slider label .v{font-family:var(--mono);font-weight:500;color:var(--ink);}
+  input[type=range]{width:100%;accent-color:var(--accent);height:22px;}
+  .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media(max-width:560px){.nums{grid-template-columns:1fr;}}
+  .nums label{font-size:13px;color:var(--ink-soft);display:block;margin-bottom:5px;}
+  input[type=number]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;
+    font-family:var(--mono);font-size:15px;background:var(--paper);color:var(--ink);}
+  input[type=number]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(168,73,42,.12);}
+  .chk{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-soft);cursor:pointer;}
+  .chk input{width:16px;height:16px;accent-color:var(--accent);}
+
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0;}
+  @media(max-width:560px){.cards3{grid-template-columns:1fr;}}
+  .metric{background:var(--paper);border-radius:10px;padding:14px 16px;border:1px solid var(--line-soft);}
+  .metric .k{font-size:12.5px;color:var(--muted);}
+  .metric .val{font-family:var(--mono);font-size:24px;font-weight:500;margin-top:3px;}
+
+  .bd{font-size:14.5px;}
+  .bd .r{display:flex;justify-content:space-between;padding:6px 0;}
+  .bd .r span:last-child{font-family:var(--mono);}
+  .bd .r.t{border-top:1px solid var(--line);margin-top:5px;padding-top:9px;font-weight:600;}
+  .bd .r .lbl{color:var(--ink-soft);}
+
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--muted);line-height:1.6;}
+  .pos{color:var(--sage);} .neg-c{color:var(--accent);}
+  a{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="mark">A<span>|</span>U</div>
+    <div>
+      <h1>Subdivisión simple — LT 32, Alta Gracia</h1>
+      <div class="sub">Análisis de desarrollo · modelo de referencia: Altos del Zorzal (Chivilcoy)</div>
+    </div>
+  </div>
+  <div class="head-inner"><div class="meta">
+    <span><b>Parcela</b> 3106010401184032</span>
+    <span><b>Superficie</b> 19.745 m² (~2 ha)</span>
+    <span><b>Lotes</b> 24 + pasaje</span>
+    <span><b>Por</b> Agrimensura Umepay</span>
+  </div></div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <h2><span class="n">01</span> Situación y normativa</h2>
+    <p class="lead">El proyecto se encuadra como <b>subdivisión simple</b> (no loteo/urbanización), confirmado con la oficina de loteos de Alta Gracia. Esa decisión es la que define la economía del negocio: evita el Estudio de Impacto Ambiental, las cesiones del 15% y el paquete pesado de obras de una urbanización.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Dónde estamos</h3>
+        <ul class="clean">
+          <li>Parcela urbana de <b>~2 ha</b> en esquina de Manuel Alfonso y Concejal Rusconi, con frente a calles abiertas y servidas.</li>
+          <li>Origen: <b>mensura de posesión / usucapión</b> (titular Hugo R. Leiva). Dominio en transferencia — hay que <b>consolidar el título</b> antes de comercializar.</li>
+          <li><b>24 lotes</b> vendibles + <b>pasaje privado</b> interno (lote 25).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Las tres compuertas regulatorias</h3>
+        <ul class="clean">
+          <li class="ok"><b>≤ 25 lotes (provincial):</b> con 24, sin EIA. Cumple.</li>
+          <li class="ok"><b>≤ 10 lotes con frente al pasaje:</b> solo 5–6 frentistas. Cumple.</li>
+          <li class="warn"><b>Municipal:</b> sin verde obligatorio, pero podría pedirse ~5% para laguna de retardo. A confirmar.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h3>El pasaje privado</h3>
+      <p style="margin:0;font-size:15px;color:var(--ink-soft);">Máximo <b>75 m</b> (se proyectan ~70 m). Una vez aprobado y terminado en Catastro, se <b>cede al municipio</b>: conviene dejarlo presentable (cordón, ripio o adoquín) para que el municipio lo tome y no quede una parcela en condominio con las unidades.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">02</span> Alcance de obra</h2>
+    <p class="lead">Lo que exige la subdivisión simple, según la oficina de loteos. Mucho más liviano que una urbanización (que sumaría cloacas, planta de tratamiento, potabilización, pavimento de hormigón y EIA).</p>
+    <table>
+      <thead><tr><th>Ítem</th><th style="text-align:right;">Condición</th></tr></thead>
+      <tbody>
+        <tr><td>Tendido eléctrico domiciliario</td><td style="text-align:right;"><span class="tag must">Obligatorio</span></td></tr>
+        <tr><td>Alumbrado público</td><td style="text-align:right;"><span class="tag must">Obligatorio</span></td></tr>
+        <tr><td>Red de agua</td><td style="text-align:right;"><span class="tag must">Obligatorio</span></td></tr>
+        <tr><td>Apertura + ripio del pasaje (70 m)</td><td style="text-align:right;"><span class="tag">Requerido</span></td></tr>
+        <tr><td>Cordón cuneta</td><td style="text-align:right;"><span class="tag">Requerido</span></td></tr>
+        <tr><td>Estudio de correntía / escurrimiento</td><td style="text-align:right;"><span class="tag">Requerido</span></td></tr>
+        <tr><td>Laguna de retardo (% a dejar)</td><td style="text-align:right;"><span class="tag neg">A negociar</span></td></tr>
+        <tr><td>Pavimento / adoquín del pasaje</td><td style="text-align:right;"><span class="tag neg">Opcional</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="n">03</span> Estimación de costos</h2>
+    <p class="lead">Estimación preliminar en USD, anclada en los valores de Chivilcoy y ajustada a la escala y al alcance liviano de esta subdivisión (2 ha, 24 lotes, ~70 m de pasaje). <b>Son órdenes de magnitud para cotizar localmente</b> (±25%).</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Obra física</h3>
+        <table>
+          <tbody>
+            <tr><td>Apertura + ripio + cordón cuneta (pasaje 70 m)</td><td class="num">22.000</td></tr>
+            <tr><td>Red eléctrica domiciliaria + conexiones</td><td class="num">38.000</td></tr>
+            <tr><td>Alumbrado público</td><td class="num">14.000</td></tr>
+            <tr><td>Red de agua + conexiones</td><td class="num">30.000</td></tr>
+            <tr><td>Estudio de correntía + laguna de retardo</td><td class="num">12.000</td></tr>
+            <tr><td>Forestación / varios de obra</td><td class="num">6.000</td></tr>
+            <tr class="tot"><td>Subtotal obra</td><td class="num">122.000</td></tr>
+            <tr class="opt"><td>Opcional: adoquinado del pasaje (donación)</td><td class="num">+22.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Otros costos</h3>
+        <table>
+          <tbody>
+            <tr><td>Consolidación de título (usucapión)</td><td class="num">8.000</td></tr>
+            <tr><td>Derechos de visación (muni + Catastro)</td><td class="num">4.000</td></tr>
+            <tr><td>Inmobiliario parcela origen (desarrollo)</td><td class="num">10.000</td></tr>
+            <tr><td>Gestiones / cartelería / varios</td><td class="num">6.000</td></tr>
+            <tr class="tot"><td>Subtotal otros</td><td class="num">28.000</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Honorarios profesionales (mensura + subdivisión + VEP ×24, comisión inmobiliaria, escribanía) <b>no van como costo</b>: si el equipo los internaliza, son ingreso. Se cargan en la calculadora.</p>
+      </div>
+    </div>
+    <p class="note">Anclas usadas: el agua sin cloacas queda muy por debajo de los USD 190.000 de “agua y cloacas” de Chivilcoy; eléctrico + alumbrado se escaló desde los USD 229.000 de Chivilcoy (~2.200/lote); la mayoría de los lotes dan a calles ya servidas, por eso la red nueva se concentra en el pasaje.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">04</span> Calculadora de rentabilidad</h2>
+    <p class="lead">El ingreso (los 24 lotes) sale del plano de venta. El resto son supuestos editables: movés las perillas y se recalcula. Defaults cargados con la estimación de arriba — reemplazá por números reales a medida que se cierren.</p>
+
+    <div class="calc">
+      <div class="ctrls">
+        <div class="slider">
+          <label><span>Vendido al pozo (resto a precio de lista)</span><span class="v" id="pozoVal">70%</span></label>
+          <input type="range" id="pozo" min="0" max="100" step="5" value="70">
+        </div>
+        <div class="slider">
+          <label><span>Reparto: % del valor para el dueño (Hugo)</span><span class="v" id="hugoVal">50%</span></label>
+          <input type="range" id="hugo" min="0" max="100" step="5" value="50">
+        </div>
+        <div class="nums">
+          <div><label>Costo de obra (USD)</label><input type="number" id="obra" value="122000" step="2000"></div>
+          <div><label>Otros costos (USD)</label><input type="number" id="otros" value="28000" step="2000"></div>
+          <div><label>Honorarios fijos agrim+escrib (USD)</label><input type="number" id="honorFijo" value="30000" step="2000"></div>
+        </div>
+        <label class="chk"><input type="checkbox" id="honorTog" checked> Sumar honorarios internalizados (comisión inmobiliaria 3% + agrim/escrib)</label>
+      </div>
+
+      <div class="cards3">
+        <div class="metric"><div class="k">Ganancia total del equipo</div><div class="val" id="mGan">—</div></div>
+        <div class="metric"><div class="k">Margen s/ costos</div><div class="val" id="mMar">—</div></div>
+        <div class="metric"><div class="k">Ventas brutas (24 lotes)</div><div class="val" id="mVen">—</div></div>
+      </div>
+
+      <div class="bd" id="bd"></div>
+    </div>
+
+    <p class="note">Conceptos que se trasladan de Chivilcoy: la <b>autofinanciación</b> (las preventas al pozo cubren la obra, así que el capital propio inmovilizado es chico — más aún acá, con obra liviana) y la <b>financiación al comprador</b> (lo cobrado antes de entregar no es crédito; solo financiás el saldo posterior a la entrega).</p>
+  </section>
+
+  <footer>
+    <p><b>Nota.</b> Documento de trabajo de Agrimensura Umepay. Los costos son estimaciones preliminares en USD para cotizar localmente; los porcentajes de reparto y la mezcla de venta son supuestos a definir. La clasificación como subdivisión simple y la eventual cesión para laguna de retardo deben confirmarse con la oficina de loteos de Alta Gracia y la Dirección General de Catastro de Córdoba antes de comprometer obra o ventas.</p>
+  </footer>
+
+</div>
+
+<script>
+  var vLista = 732740, vPozo = 549555;
+  var nf = new Intl.NumberFormat('es-AR');
+  function fmt(n){ var s = n < 0 ? '-$' : '$'; return s + nf.format(Math.abs(Math.round(n))); }
+  function $(id){ return document.getElementById(id); }
+  function rrow(label, val, o){ o = o || {};
+    var cls = 'r' + (o.t ? ' t' : '');
+    var c = o.color ? ' style="color:'+o.color+'"' : '';
+    return '<div class="'+cls+'"><span class="lbl">'+label+'</span><span'+c+'>'+val+'</span></div>';
+  }
+  function calc(){
+    var pozo = +$('pozo').value, hugo = +$('hugo').value;
+    var obra = +$('obra').value||0, otros = +$('otros').value||0, hf = +$('honorFijo').value||0;
+    var tog = $('honorTog').checked;
+    $('pozoVal').textContent = pozo+'%'; $('hugoVal').textContent = hugo+'%';
+    var ventas = vPozo*(pozo/100) + vLista*(1-pozo/100);
+    var parteHugo = ventas*hugo/100;
+    var equipo = ventas - parteHugo;
+    var costos = obra + otros;
+    var ganDes = equipo - costos;
+    var honor = tog ? (0.03*ventas + hf) : 0;
+    var ganTot = ganDes + honor;
+    var margen = costos > 0 ? ganTot/costos*100 : 0;
+    var pos = ganTot >= 0;
+    var col = pos ? 'var(--sage)' : 'var(--accent)';
+    $('mGan').textContent = fmt(ganTot); $('mGan').style.color = col;
+    $('mMar').textContent = Math.round(margen)+'%';
+    $('mVen').textContent = fmt(ventas);
+    $('bd').innerHTML =
+      rrow('Ventas brutas (24 lotes)', fmt(ventas)) +
+      rrow('− Parte del dueño (Hugo)', fmt(-parteHugo)) +
+      rrow('= Ingreso del equipo por lotes', fmt(equipo), {t:true}) +
+      rrow('− Obra', fmt(-obra)) +
+      rrow('− Otros (título, impuestos, tasas)', fmt(-otros)) +
+      rrow('= Ganancia del desarrollo', fmt(ganDes), {t:true}) +
+      (tog ? rrow('+ Honorarios internalizados (3% + fijos)', fmt(honor)) : '') +
+      rrow('= Ganancia total del equipo', fmt(ganTot), {t:true, color:col});
+  }
+  ['pozo','hugo','obra','otros','honorFijo','honorTog'].forEach(function(id){
+    $(id).addEventListener('input', calc); $(id).addEventListener('change', calc);
+  });
+  calc();
+</script>
+</body>
+</html>
