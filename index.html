@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agrimensura Umepay · Desarrollos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b18; --ink-soft:#4a4843; --paper:#f6f3ec; --card:#fffdf8;
+    --line:#e2ddd0; --muted:#8a857a; --clay:#a8492a; --green:#4f6b4a;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --serif:'Fraunces',serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  header{background:var(--ink);color:var(--paper);padding:40px 0;}
+  .inner{max-width:840px;margin:0 auto;padding:0 22px;}
+  .mark{width:54px;height:54px;border:1.5px solid var(--paper);border-radius:8px;display:flex;
+    align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:1px;margin-bottom:18px;}
+  .mark span{opacity:.55;margin:0 2px;}
+  header h1{font-family:var(--serif);font-weight:600;font-size:30px;margin:0;line-height:1.1;}
+  header p{color:#cfc8b8;margin:8px 0 0;font-size:15px;}
+
+  main{max-width:840px;margin:0 auto;padding:42px 22px 80px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:640px){.cards{grid-template-columns:1fr;}}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:12px;padding:22px 22px 20px;transition:transform .15s ease, box-shadow .15s ease;}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(28,27,24,.10);}
+  a.card.ag{--accent:var(--clay);}
+  a.card.cp{--accent:var(--green);}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);font-weight:500;}
+  .card h2{font-family:var(--serif);font-weight:600;font-size:21px;margin:6px 0 6px;}
+  .card p{color:var(--ink-soft);font-size:14.5px;margin:0 0 16px;}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .open{font-size:14px;font-weight:600;color:var(--accent);}
+  footer{max-width:840px;margin:0 auto;padding:0 22px 60px;font-size:12.5px;color:var(--muted);}
+</style>
+</head>
+<body>
+<header><div class="inner">
+  <div class="mark">A<span>|</span>U</div>
+  <h1>Desarrollos</h1>
+  <p>Agrimensura Umepay · análisis de proyectos inmobiliarios</p>
+</div></header>
+
+<main>
+  <p class="eyebrow">Proyectos en evaluación</p>
+  <div class="cards">
+    <a class="card ag" href="AltaGraciaHugo.html">
+      <div class="kicker">Subdivisión simple · urbana</div>
+      <h2>LT 32 — Alta Gracia</h2>
+      <p>Parcela de ~2 ha, 24 lotes + pasaje, título resuelto por usucapión. Costos, ventas y rentabilidad editables.</p>
+      <div class="meta"><span>Córdoba</span><span>24 lotes</span><span>Catastro: registrado</span></div>
+      <span class="open">Abrir análisis →</span>
+    </a>
+    <a class="card cp" href="ElCampito.html">
+      <div class="kicker">Posesión · lote serrano</div>
+      <h2>El Campito — 10,94 ha</h2>
+      <p>Campo en posesión (Juanma &amp; Coni), medido sobre KMZ. Compra de partes, agua y caminos; obra liviana, sin servicios de ciudad.</p>
+      <div class="meta"><span>Sierra</span><span>10,94 ha</span><span>Sin registro catastral</span></div>
+      <span class="open">Abrir análisis →</span>
+    </a>
+  </div>
+</main>
+
+<footer>Documentos de trabajo de Agrimensura Umepay · estimaciones preliminares a cotizar y verificar.</footer>
+</body>
+</html>
